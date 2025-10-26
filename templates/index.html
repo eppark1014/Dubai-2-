@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF 수정/삭제 지시사항 자동 인식 서비스</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>📄 PDF 수정/삭제 지시사항 자동 인식</h1>
+            <p class="subtitle">붉은색 손글씨로 표시된 수정/삭제 지시사항을 AI가 자동으로 분석합니다</p>
+        </header>
+
+        <main>
+            <!-- 업로드 섹션 -->
+            <section class="upload-section">
+                <div class="upload-box" id="uploadBox">
+                    <div class="upload-icon">📤</div>
+                    <h3>PDF 파일을 업로드하세요</h3>
+                    <p>클릭하거나 파일을 드래그하여 업로드</p>
+                    <input type="file" id="fileInput" accept=".pdf" hidden>
+                    <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                        파일 선택
+                    </button>
+                </div>
+                
+                <div class="file-info" id="fileInfo" style="display: none;">
+                    <div class="file-name">
+                        <strong>선택된 파일:</strong> <span id="fileName"></span>
+                    </div>
+                    <button class="btn-secondary" onclick="resetUpload()">다시 선택</button>
+                    <button class="btn-success" onclick="uploadFile()">분석 시작</button>
+                </div>
+            </section>
+
+            <!-- 로딩 섹션 -->
+            <section class="loading-section" id="loadingSection" style="display: none;">
+                <div class="loader"></div>
+                <p>PDF 분석 중입니다... 잠시만 기다려주세요</p>
+                <p class="loading-detail">이미지 변환 및 AI 분석을 진행하고 있습니다</p>
+            </section>
+
+            <!-- 결과 섹션 -->
+            <section class="results-section" id="resultsSection" style="display: none;">
+                <div class="results-header">
+                    <h2>📊 분석 결과</h2>
+                    <div class="results-info">
+                        <span>파일: <strong id="resultFileName"></strong></span>
+                        <span>총 페이지: <strong id="totalPages"></strong></span>
+                    </div>
+                </div>
+
+                <div id="resultsContainer"></div>
+            </section>
+        </main>
+
+        <footer>
+            <p>AI 기반 문서 처리 서비스 | GPT-4 Vision + OpenCV</p>
+        </footer>
+    </div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+</html>
