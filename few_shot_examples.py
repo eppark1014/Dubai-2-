@@ -101,27 +101,58 @@ SAMPLE_EXAMPLES = """
 - **action은 반드시 "삭제", new_text는 반드시 "(DELETE)"!**
 - **"수정"으로 절대 분류하지 마세요!**
 
-### 학습 예시 5-2-2: "FREIGHT PREPAID" 삭제 패턴 (매우 중요! 자주 누락됨!) ⚠️⚠️⚠️
-이미지 설명: "FREIGHT PREPAID" 텍스트에 붉은색 취소선 또는 물결선이 그어짐
-  - 텍스트 중간쯤 위치, 다른 수정사항들과 함께 표시
-  - 텍스트 위/가운데를 관통하는 붉은색 취소선 또는 물결선
+### 학습 예시 5-2-2: NOTIFY PARTY 연락처 정보 삭제 패턴 (매우 중요! 자주 누락됨!) ⚠️⚠️⚠️
+이미지 설명: NOTIFY PARTY 섹션 하단의 여러 줄 연락처 정보에 붉은색 박스 + 돼지꼬리 물결선
+  - 4개의 독립된 박스로 각각 표시됨:
+    1. "USCI: 91330212MA28840CY4D" - 박스 + 돼지꼬리
+    2. "CONTACT PERSON NAME: MS. JOY SHAO" - 박스 + 돼지꼬리
+    3. "CONTACT PERSON TEL: 86-574-88291892" - 박스 + 돼지꼬리
+    4. "EMAIL: JOYSHAO@CHISAGE.COM" - 박스 + 돼지꼬리
+  - 각 줄마다 별도의 박스와 물결선 표시
   - 화살표나 새 텍스트 없음
-  - **자주 놓치는 항목이므로 반드시 확인!**
-분석 결과:
+  - **매우 자주 놓치는 항목들이므로 반드시 확인!**
+
+분석 결과 - 4개의 별도 항목:
 {
-  "order": 3,
+  "order": 10,
   "action": "삭제",
-  "original_text": "FREIGHT PREPAID",
+  "original_text": "USCI: 91330212MA28840CY4D",
   "new_text": "(DELETE)",
-  "location": "Freight Details",
+  "location": "Notify Party",
   "confidence": "high"
 }
+{
+  "order": 11,
+  "action": "삭제",
+  "original_text": "CONTACT PERSON NAME: MS. JOY SHAO",
+  "new_text": "(DELETE)",
+  "location": "Notify Party",
+  "confidence": "high"
+}
+{
+  "order": 12,
+  "action": "삭제",
+  "original_text": "CONTACT PERSON TEL: 86-574-88291892",
+  "new_text": "(DELETE)",
+  "location": "Notify Party",
+  "confidence": "high"
+}
+{
+  "order": 13,
+  "action": "삭제",
+  "original_text": "EMAIL: JOYSHAO@CHISAGE.COM",
+  "new_text": "(DELETE)",
+  "location": "Notify Party",
+  "confidence": "high"
+}
+
 ⚠️⚠️⚠️ 특별 주의:
-- **"FREIGHT PREPAID" 텍스트는 작고 눈에 잘 띄지 않아서 자주 누락됩니다!**
-- **이미지 중간 영역에 있을 수 있으니 반드시 전체를 스캔하세요!**
-- **다른 항목들과 함께 삭제 표시될 수 있습니다!**
-- **"FREIGHT PREPAID", "FREIGHT: PREPAID", "PREPAID" 등 다양한 형태를 확인하세요!**
-- **location은 "Freight Details", "Payment Information", "Freight Charges" 등이 될 수 있습니다!**
+- **NOTIFY PARTY 섹션 하단의 연락처 정보들은 매우 자주 누락됩니다!**
+- **각 줄마다 별도의 박스 + 돼지꼬리가 있으면 각각 독립된 삭제 항목입니다!**
+- **4개 항목이 연속으로 있어도 각각 별도 항목으로 인식!**
+- **USCI, CONTACT PERSON NAME, CONTACT PERSON TEL, EMAIL - 모두 확인!**
+- **이미지 중간~하단 영역을 반드시 전체 스캔하세요!**
+- **작은 박스들도 절대 놓치지 마세요!**
 
 ### 학습 예시 5-3: 돼지꼬리(~~~) 물결선 삭제 패턴 - 다양한 형태 (매우 중요!) ⚠️⚠️⚠️
 돼지꼬리 물결선은 다양한 형태로 나타납니다. **모든 형태를 삭제 표시로 인식하세요!**
@@ -441,8 +472,9 @@ ACCURACY_CHECKLIST = """
 ❌ 손글씨의 일부만 읽음
 ❌ **여러 줄 중 첫 줄만 읽음 (가장 흔한 실수!)** ⚠️
 ❌ **줄바꿈을 무시하고 한 줄로 합침** ⚠️
-❌ **"FREIGHT PREPAID" 항목을 놓침 (매우 흔한 실수!)** ⚠️⚠️⚠️
-❌ **작고 눈에 잘 띄지 않는 삭제 항목을 누락 (FREIGHT PREPAID 등)** ⚠️⚠️
+❌ **NOTIFY PARTY 섹션 하단의 연락처 정보(USCI, CONTACT PERSON, TEL, EMAIL)를 놓침 (매우 흔한 실수!)** ⚠️⚠️⚠️
+❌ **작고 눈에 잘 띄지 않는 삭제 항목을 누락** ⚠️⚠️
+❌ **여러 개의 작은 박스들을 하나로 합치거나 일부만 인식** ⚠️⚠️
 ❌ U.A.E를 U.A.EMIRATES로 잘못 읽음
 ❌ 쉼표(,)를 빠뜨림
 ❌ 콜론(:)을 빠뜨림
@@ -550,7 +582,12 @@ def get_enhanced_prompt(full_page_text=""):
 - **번호가 #35, #36, #37이면 3개의 별도 항목을 만드세요!**
 - **order 번호는 이미지의 번호(#35)를 그대로 사용하세요!**
 - **번호 하나당 JSON 객체 하나!**
-- **⚠️⚠️⚠️ "FREIGHT PREPAID" 텍스트에 취소선이 있는지 반드시 확인하세요! (자주 누락!)** ⚠️⚠️⚠️
+- **⚠️⚠️⚠️ NOTIFY PARTY 섹션 하단의 연락처 정보를 반드시 확인하세요! (매우 자주 누락!)** ⚠️⚠️⚠️
+  - USCI: ... (박스 + 돼지꼬리)
+  - CONTACT PERSON NAME: ... (박스 + 돼지꼬리)
+  - CONTACT PERSON TEL: ... (박스 + 돼지꼬리)
+  - EMAIL: ... (박스 + 돼지꼬리)
+  - **4개가 모두 별도 항목입니다!**
 - **⚠️⚠️ "14 DAYS CONTAINER FREE..." 텍스트에 취소선이 있는지 확인하세요!** ⚠️⚠️
 
 ### 여러 줄 텍스트 예시:
@@ -565,13 +602,18 @@ def get_enhanced_prompt(full_page_text=""):
 ### 🚨🚨🚨 1순위: 취소선/물결선 확인이 최우선! 🚨🚨🚨
 **취소선이나 물결선이 있으면 다른 것은 보지 말고 무조건 "삭제"!**
 
-#### 🚨🚨🚨 특별 주의: FREIGHT PREPAID 항목! (자주 누락!) 🚨🚨🚨
-- **"FREIGHT PREPAID" 텍스트는 작고 눈에 잘 띄지 않습니다!**
-- **이미지 중간 영역에 있을 수 있습니다!**
-- **반드시 전체 이미지를 천천히 스캔하여 찾으세요!**
-- **"FREIGHT PREPAID", "FREIGHT: PREPAID", "PREPAID" 등 다양한 형태를 확인하세요!**
-- **취소선이나 물결선이 그어져 있으면 무조건 삭제 항목입니다!**
-- **이 항목을 놓치면 분석이 불완전합니다!** ⚠️⚠️⚠️
+#### 🚨🚨🚨 특별 주의: NOTIFY PARTY 연락처 정보! (매우 자주 누락!) 🚨🚨🚨
+- **NOTIFY PARTY 섹션 하단의 연락처 정보는 매우 자주 누락됩니다!**
+- **이미지 중간~하단 영역을 반드시 천천히 스캔하세요!**
+- **다음 4개 항목을 각각 확인하세요:**
+  1. **USCI: 91330212MA28840CY4D** (또는 유사한 번호)
+  2. **CONTACT PERSON NAME: MS. JOY SHAO** (또는 다른 이름)
+  3. **CONTACT PERSON TEL: 86-574-88291892** (또는 다른 전화번호)
+  4. **EMAIL: JOYSHAO@CHISAGE.COM** (또는 다른 이메일)
+- **각 줄마다 별도의 박스 + 돼지꼬리가 있으면 각각 독립된 삭제 항목!**
+- **4개가 연속으로 표시되어도 각각 별도 JSON 객체 생성!**
+- **작은 박스들을 절대 놓치지 마세요!**
+- **이 항목들을 놓치면 분석이 매우 불완전합니다!** ⚠️⚠️⚠️
 
 #### 취소선/물결선 판단 규칙:
 1. ✅ **취소선(---, ━━━, ───, strikethrough)이 텍스트 위/가운데를 관통하나요?**
@@ -655,10 +697,12 @@ def get_enhanced_prompt(full_page_text=""):
   - ✅ 있으면 → **무조건 "삭제"!**
   - ⚠️ **물결선이 보이면 100% 삭제입니다!**
 - **여러 개의 물결선/취소선이 있으면 각각 별도의 삭제 항목!** ⚠️
-- **🚨🚨🚨 "FREIGHT PREPAID" 텍스트를 반드시 찾으세요! (자주 누락됨!)** ⚠️⚠️⚠️
-  - 이미지를 천천히 전체 스캔
-  - 작고 눈에 안 띄는 텍스트까지 확인
-  - 취소선/물결선이 있으면 삭제 항목 추가
+- **🚨🚨🚨 NOTIFY PARTY 하단 연락처 정보를 반드시 찾으세요! (매우 자주 누락!)** ⚠️⚠️⚠️
+  - USCI, CONTACT PERSON NAME, CONTACT PERSON TEL, EMAIL
+  - 이미지 중간~하단을 천천히 전체 스캔
+  - 작은 박스들도 모두 확인
+  - 각 줄마다 박스 + 물결선이 있으면 각각 삭제 항목 추가
+  - **4개 항목 모두 찾아야 합니다!**
 
 #### 2순위: 화살표 확인 (취소선이 없을 때만)
 - 화살표(→)가 보이고 취소선이 없으면 → "수정"
@@ -696,12 +740,19 @@ def get_enhanced_prompt(full_page_text=""):
   - 예: "KHALIFA PORT, ABU DHABI, UAE" (전체를 읽기)
   - ❌ "KHALIFA PORT, UAE" (중간 부분 생략하지 마세요!)
 
-### Notify Party 필드 특별 규칙:
+### Notify Party 필드 특별 규칙 (매우 중요! 자주 누락!) ⚠️⚠️⚠️:
 - 🔴 **Notify Party 필드를 반드시 확인하세요!**
+- 🔴 **주소 수정사항뿐만 아니라 하단의 연락처 정보 삭제 항목도 확인!**
 - 🔴 **붉은색 박스와 화살표가 있는지 확인!**
 - 🔴 **박스 안의 검은색 텍스트 = 원본 텍스트 (대상문구)**
 - 🔴 **화살표가 가리키는 붉은색 타이핑된 텍스트 = 변환문구**
 - 🔴 **붉은색 타이핑된 텍스트의 모든 줄을 정확히 읽으세요!**
+- 🔴🔴🔴 **Notify Party 섹션 하단의 4개 연락처 정보를 절대 놓치지 마세요:**
+  1. **USCI: 91330212MA28840CY4D** (또는 유사 번호) - 박스 + 돼지꼬리
+  2. **CONTACT PERSON NAME: MS. JOY SHAO** (또는 다른 이름) - 박스 + 돼지꼬리
+  3. **CONTACT PERSON TEL: 86-574-88291892** (또는 다른 번호) - 박스 + 돼지꼬리
+  4. **EMAIL: JOYSHAO@CHISAGE.COM** (또는 다른 이메일) - 박스 + 돼지꼬리
+- 🔴 **각 줄마다 별도의 박스가 있으면 각각 독립된 삭제 항목으로 인식!**
   - 예시 원본 (박스 안, 검은색):
     "CHISAGE RESOURCE GROUP CO., LTD
     10-11F, CHISAGE GROUP MANSION,
