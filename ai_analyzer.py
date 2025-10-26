@@ -40,18 +40,26 @@ class AIAnalyzer:
         Returns:
             list: 수정/삭제 지시사항 리스트
         """
+        print("🤖 AI 분석 시작...")
+        
         if not self.client:
             print("⚠️  OpenAI API 키가 없어 AI 분석을 건너뜁니다.")
             return []
         
+        print("📷 이미지 인코딩 중...")
         base64_image = self.encode_image(image_path)
+        print(f"✅ 이미지 인코딩 완료 (크기: {len(base64_image)} bytes)")
         
         # Few-Shot Learning이 적용된 향상된 프롬프트 사용
+        print("📝 프롬프트 생성 중...")
         prompt = get_enhanced_prompt(full_page_text)
+        print(f"✅ 프롬프트 생성 완료 (길이: {len(prompt)} 자)")
 
         try:
+            print("🌐 OpenAI API 호출 중... (최대 120초 소요)")
             response = self.client.chat.completions.create(
                 model="gpt-4o",
+                timeout=120.0,  # 2분 타임아웃 설정
                 messages=[
                     {
                         "role": "user",
@@ -74,21 +82,28 @@ class AIAnalyzer:
                 temperature=0.1   # 더 일관된 결과를 위해 감소
             )
             
+            print("✅ OpenAI API 응답 받음")
             result_text = response.choices[0].message.content
+            print(f"📄 응답 길이: {len(result_text)} 자")
             
             # JSON 추출 (코드 블록 제거)
+            print("🔍 JSON 추출 중...")
             if "```json" in result_text:
                 result_text = result_text.split("```json")[1].split("```")[0]
             elif "```" in result_text:
                 result_text = result_text.split("```")[1].split("```")[0]
             
             # JSON 파싱
+            print("📊 JSON 파싱 중...")
             edits = json.loads(result_text.strip())
+            print(f"✅ AI 분석 완료! {len(edits)}개 항목 발견")
             
             return edits
             
         except Exception as e:
-            print(f"AI 분석 오류: {str(e)}")
+            print(f"❌ AI 분석 오류: {str(e)}")
+            import traceback
+            traceback.print_exc()
             return []
     
     def format_as_table(self, edits):

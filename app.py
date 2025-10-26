@@ -86,15 +86,19 @@ def upload_file():
             analyzer.save_debug_image(debug_path)
             
             # 전체 페이지 텍스트 추출 (참고용)
+            print("📄 OCR 텍스트 추출 중...")
             full_text = analyzer.get_full_page_text()
+            print(f"✅ OCR 완료 (텍스트 길이: {len(full_text)} 자)")
             
             # AI 분석
             if len(bboxes) > 0:
+                print(f"🎯 붉은색 영역 {len(bboxes)}개 발견, AI 분석 시작...")
                 ai_analyzer = AIAnalyzer()
                 edits = ai_analyzer.analyze_handwritten_edits(
                     image_path,
                     full_text
                 )
+                print(f"✅ AI 분석 완료! {len(edits)}개 수정사항 발견")
                 
                 result = {
                     'page': page_num,

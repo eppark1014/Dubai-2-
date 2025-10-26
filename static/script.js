@@ -81,10 +81,17 @@ async function uploadFile() {
     formData.append('file', selectedFile);
     
     try {
+        // 타임아웃 설정 (5분)
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 300000); // 5분
+        
         const response = await fetch('/upload', {
             method: 'POST',
-            body: formData
+            body: formData,
+            signal: controller.signal
         });
+        
+        clearTimeout(timeoutId);
         
         const data = await response.json();
         
@@ -96,7 +103,11 @@ async function uploadFile() {
         }
     } catch (error) {
         console.error('업로드 오류:', error);
-        alert('업로드 중 오류가 발생했습니다: ' + error.message);
+        if (error.name === 'AbortError') {
+            alert('요청 시간이 초과되었습니다 (5분). PDF가 너무 크거나 복잡할 수 있습니다.');
+        } else {
+            alert('업로드 중 오류가 발생했습니다: ' + error.message);
+        }
         resetUpload();
     } finally {
         document.getElementById('loadingSection').style.display = 'none';
