@@ -15,12 +15,13 @@ load_dotenv()
 class AIAnalyzer:
     """OpenAI GPT-5 Nano를 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
     
-    def __init__(self, model="gpt-5-nano-2025-08-07"):
+    def __init__(self, model="gpt-4o-mini"):
         """
         Args:
-            model: 사용할 모델 (기본값: gpt-5-nano-2025-08-07)
-                   - gpt-5-nano-2025-08-07: 최신 GPT-5 Nano 모델 (400K context, $0.05/$0.40 per 1M tokens)
-                   - gpt-4o: 더 강력하지만 비쌈 (이전 모델)
+            model: 사용할 모델 (기본값: gpt-4o-mini)
+                   - gpt-4o-mini: 빠르고 저렴한 모델 (128K context, $0.15/$0.60 per 1M tokens)
+                   - gpt-4o: 더 강력한 모델 (128K context, 더 비쌈)
+                   - gpt-5-nano-2025-08-07: GPT-5 Nano (현재 사용 불가 - 빈 응답 반환)
         """
         api_key = os.getenv('OPENAI_API_KEY')
         self.api_key = api_key
@@ -91,7 +92,12 @@ class AIAnalyzer:
             
             print("✅ OpenAI API 응답 받음")
             result_text = response.choices[0].message.content
+            if result_text is None:
+                result_text = ""
+                print("⚠️ 응답이 None입니다! 빈 문자열로 처리합니다.")
             print(f"📄 응답 길이: {len(result_text)} 자")
+            if len(result_text) > 0:
+                print(f"📝 응답 미리보기: {result_text[:200]}...")
             
             # JSON 추출 (코드 블록 제거)
             print("🔍 JSON 추출 중...")
