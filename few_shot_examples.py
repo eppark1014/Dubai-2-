@@ -110,31 +110,38 @@ SAMPLE_EXAMPLES = """
 - 9175970 ≠ 9157090 (5와 7의 순서 주의!)
 - 숫자 하나하나를 신중하게 읽으세요!
 
-### 학습 예시 8: 붉은색 박스로 둘러싸인 타이핑된 텍스트 패턴 (매우 중요!) ⚠️
-이미지 설명: NOTIFY PARTY 필드에 붉은색 박스로 둘러싸인 타이핑된(인쇄된) 텍스트
-  - 원본: "Carrier not to be responsible for failure to notify" (표준 안내문)
-  - 붉은색 박스 안의 타이핑된 텍스트 (여러 줄):
+### 학습 예시 8: 붉은색 박스 + 화살표 + 붉은색 타이핑된 텍스트 패턴 (매우 중요!) ⚠️⚠️
+이미지 설명: NOTIFY PARTY 필드에 붉은색 박스와 화살표, 그리고 붉은색으로 타이핑된 새 텍스트
+  - 원본 텍스트 (검은색, 박스 안):
+    "CHISAGE RESOURCE GROUP CO., LTD
+    10-11F, CHISAGE GROUP MANSION,
+    NO.626 JINYUAN ROAD, PANHUO
+    SUB-DISTRICT, YINZHOU DISTRICT,
+    NINGBO CITY, ZHEJIANG PROVINCE"
+  - 붉은색 박스로 원본 주소를 표시
+  - 박스에서 화살표가 나와서 새로운 텍스트를 가리킴
+  - 화살표 끝의 붉은색 타이핑된 텍스트 (여러 줄):
     "CHISAGE RESOURCE GROUP CO.,LTD
-    CHISAGE BUILDING 10F,NO.626,
-    JINYUAN ROAD,PANHUO STREET,
-    YINZHOU,NINGBO,ZHEJIANG,CHINA
-    TEL: 86-574- 88291892  FAX: 86-574-88291935
-    EMAIL: JOYSHAO AT CHISAGE.COM"
-  - 붉은색 화살표가 "KHALIFA PORT, INC"를 가리킴
+    CHISAGE BUILDING 10F, NO 626
+    JINYUAN ROAD, PANHUO STREET
+    YINZHOU, NINGBO, ZHEJIANG, CHINA
+    TEL : 86-574-88291892  FAX : 86-574-88291935
+    EMAIL : JOYSHAO AT CHISAGE.COM"
 분석 결과:
 {
   "order": 8,
   "action": "수정",
-  "original_text": "Carrier not to be responsible for failure to notify",
-  "new_text": "KHALIFA PORT, INC",
+  "original_text": "CHISAGE RESOURCE GROUP CO., LTD\\n10-11F, CHISAGE GROUP MANSION,\\nNO.626 JINYUAN ROAD, PANHUO\\nSUB-DISTRICT, YINZHOU DISTRICT,\\nNINGBO CITY, ZHEJIANG PROVINCE",
+  "new_text": "CHISAGE RESOURCE GROUP CO.,LTD\\nCHISAGE BUILDING 10F, NO 626\\nJINYUAN ROAD, PANHUO STREET\\nYINZHOU, NINGBO, ZHEJIANG, CHINA\\nTEL : 86-574-88291892  FAX : 86-574-88291935\\nEMAIL : JOYSHAO AT CHISAGE.COM",
   "location": "Notify Party",
   "confidence": "high"
 }
 ⚠️ 주의사항:
-- **붉은색 박스로 둘러싸인 타이핑된 텍스트도 수정 지시사항입니다!**
-- **손글씨가 아니어도 붉은색 박스 = 중요한 정보**
-- **박스 안의 모든 텍스트를 읽되, 화살표가 가리키는 최종 변환문구를 찾으세요**
-- **여러 줄의 주소 정보가 박스 안에 있어도, 화살표가 가리키는 텍스트가 최종 답입니다**
+- **붉은색으로 타이핑된 텍스트를 정확히 모두 읽으세요!**
+- **원본 = 박스 안의 검은색 텍스트 (짧은 주소)**
+- **변환문구 = 화살표가 가리키는 붉은색 텍스트 (긴 주소, 전화, 이메일 포함)**
+- **붉은색 타이핑된 텍스트의 모든 줄을 읽고 \\n으로 구분하세요!**
+- **손글씨가 아닌 타이핑된 텍스트도 붉은색이면 수정 지시사항입니다!**
 """
 
 # 패턴 인식 가이드
@@ -163,13 +170,15 @@ PATTERN_GUIDE = """
 ✓ 텍스트 주변의 붉은 마킹
 → 이런 경우도 수정/삭제 지시사항일 가능성이 높음!
 
-### 2-2. 붉은색 박스 안의 타이핑된 텍스트 패턴 (매우 중요!) ⚠️⚠️
+### 2-2. 붉은색 박스 + 화살표 + 붉은색 타이핑된 텍스트 패턴 (매우 중요!) ⚠️⚠️
 **손글씨가 아니어도 수정 지시사항:**
-✓ **붉은색 박스로 둘러싸인 타이핑된(인쇄된) 텍스트**
-✓ 박스 안에 여러 줄의 주소, 연락처 정보
-✓ 박스 또는 박스 안의 텍스트에서 화살표가 나와 다른 텍스트를 가리킴
-✓ 화살표가 가리키는 텍스트 = 최종 변환문구
-→ **박스 안의 긴 텍스트는 참고용, 화살표가 가리키는 짧은 텍스트가 실제 변환문구!**
+✓ **붉은색 박스로 원본 텍스트를 표시 (검은색 인쇄된 텍스트)**
+✓ 박스에서 화살표가 나와서 다른 텍스트를 가리킴
+✓ **화살표가 가리키는 곳에 붉은색으로 타이핑된 새 텍스트**
+✓ 붉은색 타이핑된 텍스트 = 최종 변환문구
+✓ 여러 줄의 주소, 전화번호, 이메일 등이 포함될 수 있음
+→ **박스 안 = 원본 텍스트, 화살표 끝의 붉은색 텍스트 = 변환문구!**
+→ **붉은색 타이핑된 텍스트의 모든 줄을 읽고 \\n으로 구분하세요!**
 
 ### 3. 여러 줄 텍스트 처리 (매우 중요!) ⚠️
 **하나의 박스 안에 여러 줄이 있는 경우:**
@@ -275,10 +284,12 @@ def get_enhanced_prompt(full_page_text=""):
    - 이 필드에 박스, 동그라미, 밑줄, 번호 표시가 있는지 확인
    - 이 필드와 연결된 손글씨가 있는지 확인
 4. 각 마킹에 화살표가 있는지 확인 (있으면 수정, 없고 취소선이면 삭제)
-5. ⚠️⚠️ **붉은색 박스 안의 타이핑된 텍스트 확인**:
-   - 박스 안에 인쇄된(타이핑된) 텍스트가 있는지 확인
-   - 박스나 박스 안 텍스트에서 화살표가 나오는지 확인
-   - 화살표가 가리키는 텍스트 = 최종 변환문구
+5. ⚠️⚠️ **붉은색 박스 + 화살표 + 붉은색 타이핑된 텍스트 패턴 확인**:
+   - 붉은색 박스로 표시된 검은색 텍스트 찾기 (원본)
+   - 박스에서 나오는 화살표 확인
+   - 화살표 끝의 붉은색으로 타이핑된 텍스트 찾기
+   - **붉은색 타이핑된 텍스트의 모든 줄을 읽기 (TEL, FAX, EMAIL 포함)**
+   - 이 붉은색 타이핑된 텍스트 = 최종 변환문구
 6. ⚠️ **약한 마킹도 모두 확인**: 박스, 밑줄, 동그라미, 번호만 있어도 수정사항!
 7. ⚠️ **박스 안에 여러 줄이 있는지 확인** - 있으면 모든 줄을 읽기!
 8. 🔍 **원본 텍스트(검은색 인쇄)를 천천히, 정확하게 읽기**:
@@ -331,20 +342,24 @@ def get_enhanced_prompt(full_page_text=""):
 - 화살표(→)가 보이면 반드시 "수정"
 - 취소선/물결/X표시만 있으면 "삭제"
 - **박스, 밑줄, 동그라미, 번호 표시 = 모두 수정 지시사항!**
-- **붉은색 박스 안의 타이핑된 텍스트도 수정 지시사항!** ⚠️⚠️
-- **박스 안 텍스트에서 화살표가 나오면, 화살표가 가리키는 텍스트가 최종 변환문구!**
+- **붉은색 박스 + 화살표 + 붉은색 타이핑된 텍스트 패턴 인식!** ⚠️⚠️
+  - 박스 안 = 원본 텍스트 (검은색)
+  - 화살표 끝 = 변환문구 (붉은색 타이핑)
+  - **화살표가 가리키는 붉은색 타이핑된 텍스트의 모든 줄을 읽으세요!**
 - **하나의 박스에 여러 줄이 있으면 모든 줄을 읽고 \\n으로 구분!**
-- **TEL + FAX처럼 여러 줄이 함께 박스로 묶였으면 하나의 항목으로!**
-- **첫 줄만 읽지 말고 박스 안의 모든 텍스트를 읽으세요!**
+- **TEL + FAX + EMAIL처럼 여러 줄이 함께 있으면 하나의 항목으로!**
+- **첫 줄만 읽지 말고 모든 텍스트를 읽으세요!**
 
 ### 텍스트 읽기 규칙:
 - 🔍 **원본 텍스트(검은색 인쇄된 텍스트)를 정확히 읽기** - 한 글자도 빠뜨리거나 바꾸지 마세요!
+- 🔍 **붉은색 타이핑된 텍스트를 모두 읽기** - TEL, FAX, EMAIL 등 모든 줄 포함! ⚠️⚠️
 - 🔍 **숫자 정확히 읽기**: 5와 9, 7과 1, 0과 O를 구분하세요
 - 🔍 **컨테이너 번호 전체 읽기**: CMAU9175970처럼 모든 숫자를 정확히
 - 손글씨를 한 글자도 빠뜨리지 말고 정확히 읽기
 - 대소문자, 문장부호 정확히 인식
 - 모든 붉은색 마킹을 빠짐없이 분석
 - **이미지에서 직접 번호를 찾고 그 주변 손글씨를 읽으세요!**
+- **붉은색 타이핑된 텍스트는 6-7줄 정도의 긴 주소일 수 있습니다 - 모두 읽으세요!**
 
 ### Port of Loading 필드 특별 규칙:
 - 🔴 **Port of Loading 필드에 번호나 마킹이 있으면 절대 무시하지 마세요!**
@@ -355,12 +370,24 @@ def get_enhanced_prompt(full_page_text=""):
 
 ### Notify Party 필드 특별 규칙:
 - 🔴 **Notify Party 필드를 반드시 확인하세요!**
-- 🔴 **붉은색 박스로 둘러싸인 타이핑된 텍스트가 있는지 확인!**
-- 🔴 **박스 안에 긴 주소/연락처 정보가 있어도, 화살표가 가리키는 짧은 텍스트가 최종 변환문구!**
-  - 예: 박스 안에 "CHISAGE RESOURCE GROUP CO.,LTD\n주소\n전화\n이메일" 같은 긴 텍스트
-  - 화살표가 "KHALIFA PORT, INC"를 가리킴
-  - → 변환문구 = "KHALIFA PORT, INC" (화살표가 가리키는 것!)
-- 🔴 **원본 텍스트는 "Carrier not to be responsible for failure to notify" 같은 표준 안내문**
+- 🔴 **붉은색 박스와 화살표가 있는지 확인!**
+- 🔴 **박스 안의 검은색 텍스트 = 원본 텍스트 (대상문구)**
+- 🔴 **화살표가 가리키는 붉은색 타이핑된 텍스트 = 변환문구**
+- 🔴 **붉은색 타이핑된 텍스트의 모든 줄을 정확히 읽으세요!**
+  - 예시 원본 (박스 안, 검은색):
+    "CHISAGE RESOURCE GROUP CO., LTD
+    10-11F, CHISAGE GROUP MANSION,
+    NO.626 JINYUAN ROAD, PANHUO
+    SUB-DISTRICT, YINZHOU DISTRICT,
+    NINGBO CITY, ZHEJIANG PROVINCE"
+  - 예시 변환문구 (화살표 끝, 붉은색):
+    "CHISAGE RESOURCE GROUP CO.,LTD
+    CHISAGE BUILDING 10F, NO 626
+    JINYUAN ROAD, PANHUO STREET
+    YINZHOU, NINGBO, ZHEJIANG, CHINA
+    TEL : 86-574-88291892  FAX : 86-574-88291935
+    EMAIL : JOYSHAO AT CHISAGE.COM"
+- 🔴 **TEL, FAX, EMAIL 정보도 모두 포함하여 읽으세요!**
 
 ### 원본 텍스트(검은색 인쇄) 읽기 규칙:
 - 🔍 **검은색으로 인쇄된 원본 텍스트를 100% 정확하게 읽으세요**
