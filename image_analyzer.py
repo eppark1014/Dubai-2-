@@ -55,9 +55,12 @@ class ImageAnalyzer:
         
         return self.red_mask
     
-    def find_red_contours(self):
+    def find_red_contours(self, merge_threshold=30):
         """
         붉은색 영역의 윤곽선 찾기
+        
+        Args:
+            merge_threshold: 박스를 병합할 Y축 거리 임계값 (픽셀)
         
         Returns:
             list: 윤곽선 리스트 (x, y, w, h)
@@ -91,7 +94,106 @@ class ImageAnalyzer:
         # Y 좌표로 정렬 (위에서 아래로)
         bounding_boxes.sort(key=lambda box: box['y'])
         
-        return bounding_boxes
+        # 가까운 박스들 병합 (같은 박스 안의 여러 줄을 하나로)
+        merged_boxes = self._merge_nearby_boxes(bounding_boxes, merge_threshold)
+        
+        return merged_boxes
+    
+    def _merge_nearby_boxes(self, boxes, threshold):
+        """
+        세로로 가까운 박스들을 병합
+        
+        Args:
+            boxes: 바운딩 박스 리스트 (Y로 정렬된 상태)
+            threshold: Y축 거리 임계값 (픽셀)
+            
+        Returns:
+            list: 병합된 바운딩 박스 리스트
+        """
+        if not boxes:
+            return []
+        
+        merged = []
+        current_group = [boxes[0]]
+        
+        for i in range(1, len(boxes)):
+            prev_box = current_group[-1]
+            curr_box = boxes[i]
+            
+            # 이전 박스의 하단과 현재 박스의 상단 사이 거리
+            distance = curr_box['y'] - (prev_box['y'] + prev_box['height'])
+            
+            # 거리가 임계값 이하이고, X축 겹침이 있으면 같은 그룹으로 간주
+            x_overlap = self._check_x_overlap(prev_box, curr_box)
+            
+            if distance <= threshold and x_overlap:
+                # 같은 그룹에 추가
+                current_group.append(curr_box)
+            else:
+                # 현재 그룹을 병합하여 저장
+                merged.append(self._merge_box_group(current_group))
+                # 새 그룹 시작
+                current_group = [curr_box]
+        
+        # 마지막 그룹 병합
+        merged.append(self._merge_box_group(current_group))
+        
+        return merged
+    
+    def _check_x_overlap(self, box1, box2, overlap_ratio=0.3):
+        """
+        두 박스의 X축 겹침 확인
+        
+        Args:
+            box1, box2: 바운딩 박스
+            overlap_ratio: 최소 겹침 비율 (0.0 ~ 1.0)
+            
+        Returns:
+            bool: 겹침 여부
+        """
+        x1_start, x1_end = box1['x'], box1['x'] + box1['width']
+        x2_start, x2_end = box2['x'], box2['x'] + box2['width']
+        
+        # 겹치는 구간
+        overlap_start = max(x1_start, x2_start)
+        overlap_end = min(x1_end, x2_end)
+        overlap_width = max(0, overlap_end - overlap_start)
+        
+        # 더 작은 박스 너비 기준으로 겹침 비율 계산
+        min_width = min(box1['width'], box2['width'])
+        
+        if min_width == 0:
+            return False
+        
+        return (overlap_width / min_width) >= overlap_ratio
+    
+    def _merge_box_group(self, boxes):
+        """
+        박스 그룹을 하나의 큰 박스로 병합
+        
+        Args:
+            boxes: 병합할 박스 리스트
+            
+        Returns:
+            dict: 병합된 바운딩 박스
+        """
+        if len(boxes) == 1:
+            return boxes[0]
+        
+        # 모든 박스를 포함하는 최소 바운딩 박스 계산
+        x_min = min(box['x'] for box in boxes)
+        y_min = min(box['y'] for box in boxes)
+        x_max = max(box['x'] + box['width'] for box in boxes)
+        y_max = max(box['y'] + box['height'] for box in boxes)
+        
+        return {
+            'x': x_min,
+            'y': y_min,
+            'width': x_max - x_min,
+            'height': y_max - y_min,
+            'area': (x_max - x_min) * (y_max - y_min),
+            'merged_count': len(boxes)  # 병합된 박스 개수
+        }
     
     def extract_region_image(self, bbox, padding=20):
         """
