@@ -90,33 +90,23 @@ def upload_file():
             full_text = analyzer.get_full_page_text()
             print(f"✅ OCR 완료 (텍스트 길이: {len(full_text)} 자)")
             
-            # AI 분석
-            if len(bboxes) > 0:
-                print(f"🎯 붉은색 영역 {len(bboxes)}개 발견, AI 분석 시작...")
-                ai_analyzer = AIAnalyzer()
-                edits = ai_analyzer.analyze_handwritten_edits(
-                    image_path,
-                    full_text
-                )
-                print(f"✅ AI 분석 완료! {len(edits)}개 수정사항 발견")
-                
-                result = {
-                    'page': page_num,
-                    'image_url': f'/output/{unique_id}/page_{page_num}.png',
-                    'debug_url': f'/output/{unique_id}/debug_page_{page_num}.png',
-                    'red_regions_count': len(bboxes),
-                    'edits': edits,
-                    'table': ai_analyzer.format_as_table(edits)
-                }
-            else:
-                result = {
-                    'page': page_num,
-                    'image_url': f'/output/{unique_id}/page_{page_num}.png',
-                    'debug_url': None,
-                    'red_regions_count': 0,
-                    'edits': [],
-                    'table': {'headers': [], 'rows': []}
-                }
+            # AI 분석 (빨간색 영역 유무와 관계없이 항상 수행)
+            print(f"🤖 AI 분석 시작... (빨간색 영역: {len(bboxes)}개)")
+            ai_analyzer = AIAnalyzer()
+            edits = ai_analyzer.analyze_handwritten_edits(
+                image_path,
+                full_text
+            )
+            print(f"✅ AI 분석 완료! {len(edits)}개 수정사항 발견")
+            
+            result = {
+                'page': page_num,
+                'image_url': f'/output/{unique_id}/page_{page_num}.png',
+                'debug_url': f'/output/{unique_id}/debug_page_{page_num}.png' if len(bboxes) > 0 else None,
+                'red_regions_count': len(bboxes),
+                'edits': edits,
+                'table': ai_analyzer.format_as_table(edits)
+            }
             
             all_results.append(result)
         
