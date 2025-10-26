@@ -209,8 +209,8 @@ function createTableHTML(tableData) {
             <tr>
                 <td>${row.order}</td>
                 <td><span class="${actionClass}">${row.action}</span></td>
-                <td class="${originalTextClass}">${escapeHtml(row.original_text)}</td>
-                <td>${escapeHtml(row.new_text)}</td>
+                <td class="${originalTextClass}">${formatMultilineText(row.original_text)}</td>
+                <td>${formatMultilineText(row.new_text)}</td>
                 <td><em>${escapeHtml(row.location)}</em></td>
             </tr>
         `;
@@ -229,4 +229,10 @@ function escapeHtml(text) {
     const div = document.createElement('div');
     div.textContent = text;
     return div.innerHTML;
+}
+
+function formatMultilineText(text) {
+    // \n을 <br>로 변환하여 여러 줄 표시
+    if (!text) return '';
+    return escapeHtml(text).replace(/\\n/g, '<br>').replace(/\n/g, '<br>');
 }

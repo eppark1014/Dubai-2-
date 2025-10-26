@@ -323,6 +323,13 @@ tbody tr:hover {
 tbody td {
     padding: 15px;
     font-size: 0.95rem;
+    line-height: 1.6;
+    vertical-align: top;
+}
+
+/* 여러 줄 텍스트 스타일 */
+tbody td br {
+    line-height: 2;
 }
 
 .action-수정 {
