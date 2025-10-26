@@ -15,11 +15,11 @@ load_dotenv()
 class AIAnalyzer:
     """OpenAI GPT-5 Nano를 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
     
-    def __init__(self, model="gpt-5-nano"):
+    def __init__(self, model="gpt-5-nano-2025-08-07"):
         """
         Args:
-            model: 사용할 모델 (기본값: gpt-5-nano)
-                   - gpt-5-nano: 빠르고 저렴 (400K context, $0.05/$0.40 per 1M tokens)
+            model: 사용할 모델 (기본값: gpt-5-nano-2025-08-07)
+                   - gpt-5-nano-2025-08-07: 최신 GPT-5 Nano 모델 (400K context, $0.05/$0.40 per 1M tokens)
                    - gpt-4o: 더 강력하지만 비쌈 (이전 모델)
         """
         api_key = os.getenv('OPENAI_API_KEY')
