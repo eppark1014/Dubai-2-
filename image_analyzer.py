@@ -116,9 +116,39 @@ class ImageAnalyzer:
         
         return self.image[y:y_end, x:x_end]
     
+    def preprocess_for_ocr(self, image):
+        """
+        OCR 정확도 향상을 위한 이미지 전처리
+        
+        Args:
+            image: 원본 이미지
+            
+        Returns:
+            numpy.ndarray: 전처리된 이미지
+        """
+        # 그레이스케일 변환
+        gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+        
+        # 노이즈 제거 (Gaussian Blur)
+        denoised = cv2.GaussianBlur(gray, (3, 3), 0)
+        
+        # 대비 향상 (CLAHE - Contrast Limited Adaptive Histogram Equalization)
+        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        enhanced = clahe.apply(denoised)
+        
+        # 이진화 (Adaptive Thresholding)
+        binary = cv2.adaptiveThreshold(
+            enhanced, 255, 
+            cv2.ADAPTIVE_THRESH_GAUSSIAN_C, 
+            cv2.THRESH_BINARY, 
+            11, 2
+        )
+        
+        return binary
+    
     def ocr_region(self, region_image):
         """
-        영역 이미지에서 텍스트 추출 (OCR)
+        영역 이미지에서 텍스트 추출 (OCR) - 개선된 버전
         
         Args:
             region_image: 이미지 영역
@@ -126,27 +156,42 @@ class ImageAnalyzer:
         Returns:
             str: 추출된 텍스트
         """
+        # 이미지 전처리
+        processed = self.preprocess_for_ocr(region_image)
+        
         # OpenCV 이미지를 PIL 이미지로 변환
-        pil_image = Image.fromarray(cv2.cvtColor(region_image, cv2.COLOR_BGR2RGB))
+        pil_image = Image.fromarray(processed)
         
         # OCR 실행 (한국어 + 영어)
+        # PSM 모드:
+        # 6 = 단일 텍스트 블록
+        # 7 = 단일 텍스트 라인
+        # 11 = 가능한 한 많은 텍스트 찾기
         text = pytesseract.image_to_string(
             pil_image,
             lang='eng+kor',
-            config='--psm 6'
+            config='--psm 6 --oem 3'  # OEM 3 = Default (LSTM + Legacy)
         )
         
         return text.strip()
     
     def get_full_page_text(self):
         """
-        전체 페이지 텍스트 추출
+        전체 페이지 텍스트 추출 - 개선된 버전
         
         Returns:
             str: 전체 페이지 텍스트
         """
-        pil_image = Image.fromarray(cv2.cvtColor(self.image, cv2.COLOR_BGR2RGB))
-        text = pytesseract.image_to_string(pil_image, lang='eng')
+        # 이미지 전처리
+        processed = self.preprocess_for_ocr(self.image)
+        pil_image = Image.fromarray(processed)
+        
+        # OCR 실행 (영어)
+        text = pytesseract.image_to_string(
+            pil_image, 
+            lang='eng',
+            config='--psm 1 --oem 3'  # PSM 1 = Automatic page segmentation with OSD
+        )
         return text
     
     def save_debug_image(self, output_path):
