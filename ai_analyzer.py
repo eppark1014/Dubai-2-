@@ -45,42 +45,59 @@ class AIAnalyzer:
         base64_image = self.encode_image(image_path)
         
         prompt = f"""이 이미지는 Bill of Lading (선하증권) 문서입니다.
-문서 위에 붉은색 손글씨로 수정/삭제 지시사항이 표시되어 있습니다.
+문서에 붉은색/분홍색/주황색 계열의 손글씨로 수정/삭제 지시사항이 표시되어 있습니다.
+
+⚠️ 중요: 이미지를 매우 자세히 살펴보고 붉은 계열 색상으로 표시된 모든 수정사항을 찾아야 합니다!
 
 **수정 지시사항 패턴:**
-- 수정할 텍스트를 붉은색 박스로 표시
-- 화살표(→)로 연결
-- 화살표 끝에 새로운 텍스트를 손글씨로 작성
+- 원본 텍스트 주변에 붉은색 박스/밑줄/동그라미로 표시
+- 화살표(→, ➔, ⇒)로 연결하여 새로운 텍스트로 안내
+- 화살표 끝에 손글씨로 새로운 텍스트 작성
+- 예: [ABU DHABI, U.A.EMIRATES] → ABU DHABI, U.A.E
 
 **삭제 지시사항 패턴:**
-- 삭제할 텍스트를 붉은색 박스로 표시
-- 돼지꼬리 표시 (물결표시, 취소선)로 삭제 의도 표시
+- 삭제할 텍스트를 붉은색 박스/취소선으로 표시
+- 돼지꼬리(~~~), X표시, 취소선으로 삭제 의도 표시
+- 예: [TEL:0574-87170623] ~~~
 
-다음 정보를 JSON 배열로 추출해주세요:
+**분석 단계:**
+1. 전체 문서를 스캔하여 붉은/분홍/주황 계열 마킹을 모두 찾기
+2. 각 마킹의 종류 파악 (화살표 있음 = 수정, 취소표시 = 삭제)
+3. 박스/밑줄로 표시된 원본 텍스트 정확히 읽기
+4. 화살표가 가리키는 손글씨 텍스트 읽기 (수정인 경우)
+5. 해당 영역이 위치한 문서 필드명 파악
+
+다음 형식의 JSON 배열로 반환:
 
 ```json
 [
   {{
     "order": 1,
     "action": "수정" or "삭제",
-    "original_text": "원본 텍스트",
-    "new_text": "변경될 텍스트 (삭제의 경우 (DELETE))",
-    "location": "문서상의 위치 (예: Notify Party, Place of Receipt)",
+    "original_text": "박스로 표시된 원본 텍스트",
+    "new_text": "화살표가 가리키는 새 텍스트 (삭제의 경우 (DELETE))",
+    "location": "문서 필드명 (예: Notify Party, Place of Receipt, Port of Loading, Final Destination, Shipper, Description of Goods 등)",
     "confidence": "high/medium/low"
   }}
 ]
 ```
 
-**중요:**
-1. 붉은색 계열 유채색으로 표시된 모든 수정/삭제 사항을 찾으세요
-2. 화살표가 있으면 '수정', 돼지꼬리/취소 표시가 있으면 '삭제'입니다
-3. 손글씨를 꼼꼼히 읽고 정확한 텍스트를 추출하세요
-4. location은 해당 텍스트가 위치한 문서의 필드명/컬럼명입니다
-5. 순번(order)은 문서 위에서 아래로 순서대로 부여하세요
+**반드시 확인할 영역:**
+- Shipper (화주) 정보 영역
+- Consignee (수하인) 정보 영역  
+- Notify Party (통지처) 영역
+- Place of Receipt (수령지) 영역
+- Port of Loading (선적항) 영역
+- Port of Discharge (양하항) 영역
+- Final Destination (최종 목적지) 영역
+- Description of Goods (화물 명세) 영역
+- Container Number 영역
+- 기타 텍스트 영역
 
 {f"참고: 전체 문서 텍스트: {full_page_text[:1000]}" if full_page_text else ""}
 
-JSON 배열만 반환해주세요."""
+⚠️ 이미지에서 붉은 계열 색상의 마킹이 하나라도 보이면 반드시 분석하여 결과에 포함시켜야 합니다!
+빈 배열 []을 반환하지 말고, 보이는 모든 수정사항을 JSON 배열로 반환하세요."""
 
         try:
             response = self.client.chat.completions.create(

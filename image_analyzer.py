@@ -35,9 +35,10 @@ class ImageAnalyzer:
         
         # 붉은색 범위 정의 (HSV)
         # 붉은색은 0도와 360도 근처에 있어서 두 범위로 나눔
-        lower_red1 = np.array([0, 100, 100])
-        upper_red1 = np.array([10, 255, 255])
-        lower_red2 = np.array([160, 100, 100])
+        # 채도와 명도를 낮춰서 더 넓은 범위의 붉은색 감지
+        lower_red1 = np.array([0, 50, 50])    # 채도 50, 명도 50으로 낮춤
+        upper_red1 = np.array([15, 255, 255])  # 색상 범위 확장 (10→15)
+        lower_red2 = np.array([155, 50, 50])   # 채도 50, 명도 50으로 낮춤
         upper_red2 = np.array([180, 255, 255])
         
         # 두 범위의 마스크 생성
@@ -73,7 +74,7 @@ class ImageAnalyzer:
         
         # 바운딩 박스 정보 추출 (최소 면적 필터링)
         bounding_boxes = []
-        min_area = 500  # 최소 면적 (픽셀)
+        min_area = 200  # 최소 면적 (픽셀) - 더 작은 수정사항도 감지
         
         for contour in contours:
             area = cv2.contourArea(contour)
