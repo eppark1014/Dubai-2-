@@ -15,9 +15,12 @@ class AIAnalyzer:
     
     def __init__(self):
         api_key = os.getenv('OPENAI_API_KEY')
-        if not api_key:
-            raise ValueError("OPENAI_API_KEY가 설정되지 않았습니다. .env 파일을 확인하세요.")
-        self.client = OpenAI(api_key=api_key)
+        self.api_key = api_key
+        if api_key:
+            self.client = OpenAI(api_key=api_key)
+        else:
+            self.client = None
+            print("⚠️  OPENAI_API_KEY가 설정되지 않았습니다. AI 분석 기능이 비활성화됩니다.")
     
     def encode_image(self, image_path):
         """이미지를 base64로 인코딩"""
@@ -35,6 +38,10 @@ class AIAnalyzer:
         Returns:
             list: 수정/삭제 지시사항 리스트
         """
+        if not self.client:
+            print("⚠️  OpenAI API 키가 없어 AI 분석을 건너뜁니다.")
+            return []
+        
         base64_image = self.encode_image(image_path)
         
         prompt = f"""이 이미지는 Bill of Lading (선하증권) 문서입니다.
