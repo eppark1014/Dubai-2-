@@ -13,11 +13,18 @@ load_dotenv()
 
 
 class AIAnalyzer:
-    """OpenAI GPT-4 Vision을 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
+    """OpenAI GPT-5 Nano를 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
     
-    def __init__(self):
+    def __init__(self, model="gpt-5-nano"):
+        """
+        Args:
+            model: 사용할 모델 (기본값: gpt-5-nano)
+                   - gpt-5-nano: 빠르고 저렴 (400K context, $0.05/$0.40 per 1M tokens)
+                   - gpt-4o: 더 강력하지만 비쌈 (이전 모델)
+        """
         api_key = os.getenv('OPENAI_API_KEY')
         self.api_key = api_key
+        self.model = model
         if api_key:
             self.client = OpenAI(api_key=api_key)
         else:
@@ -56,9 +63,9 @@ class AIAnalyzer:
         print(f"✅ 프롬프트 생성 완료 (길이: {len(prompt)} 자)")
 
         try:
-            print("🌐 OpenAI API 호출 중... (최대 120초 소요)")
+            print(f"🌐 OpenAI API 호출 중... (모델: {self.model}, 최대 120초 소요)")
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model=self.model,
                 timeout=120.0,  # 2분 타임아웃 설정
                 messages=[
                     {
