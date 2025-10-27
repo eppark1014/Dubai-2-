@@ -7,7 +7,7 @@ import base64
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
-from few_shot_examples import get_enhanced_prompt
+from few_shot_examples_simplified import get_simplified_prompt
 
 load_dotenv()
 
@@ -58,9 +58,9 @@ class AIAnalyzer:
         base64_image = self.encode_image(image_path)
         print(f"✅ 이미지 인코딩 완료 (크기: {len(base64_image)} bytes)")
         
-        # Few-Shot Learning이 적용된 향상된 프롬프트 사용
-        print("📝 프롬프트 생성 중...")
-        prompt = get_enhanced_prompt(full_page_text)
+        # 간소화된 Few-Shot Learning 프롬프트 사용 (3가지 핵심 패턴만)
+        print("📝 프롬프트 생성 중... (간소화된 버전)")
+        prompt = get_simplified_prompt(full_page_text)
         print(f"✅ 프롬프트 생성 완료 (길이: {len(prompt)} 자)")
 
         try:
