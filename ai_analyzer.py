@@ -7,17 +7,25 @@ import base64
 from openai import OpenAI
 from dotenv import load_dotenv
 import json
-from few_shot_examples import get_enhanced_prompt
+from few_shot_examples_simplified import get_simplified_prompt
 
 load_dotenv()
 
 
 class AIAnalyzer:
-    """OpenAI GPT-4 Vision을 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
+    """OpenAI GPT-5 Nano를 사용하여 손글씨 수정 지시사항을 분석하는 클래스"""
     
-    def __init__(self):
+    def __init__(self, model="gpt-4o-mini"):
+        """
+        Args:
+            model: 사용할 모델 (기본값: gpt-4o-mini)
+                   - gpt-4o-mini: 빠르고 저렴한 모델 (128K context, $0.15/$0.60 per 1M tokens)
+                   - gpt-4o: 더 강력한 모델 (128K context, 더 비쌈)
+                   - gpt-5-nano-2025-08-07: GPT-5 Nano (현재 사용 불가 - 빈 응답 반환)
+        """
         api_key = os.getenv('OPENAI_API_KEY')
         self.api_key = api_key
+        self.model = model
         if api_key:
             self.client = OpenAI(api_key=api_key)
         else:
@@ -50,15 +58,15 @@ class AIAnalyzer:
         base64_image = self.encode_image(image_path)
         print(f"✅ 이미지 인코딩 완료 (크기: {len(base64_image)} bytes)")
         
-        # Few-Shot Learning이 적용된 향상된 프롬프트 사용
-        print("📝 프롬프트 생성 중...")
-        prompt = get_enhanced_prompt(full_page_text)
+        # 간소화된 Few-Shot Learning 프롬프트 사용 (3가지 핵심 패턴만)
+        print("📝 프롬프트 생성 중... (간소화된 버전)")
+        prompt = get_simplified_prompt(full_page_text)
         print(f"✅ 프롬프트 생성 완료 (길이: {len(prompt)} 자)")
 
         try:
-            print("🌐 OpenAI API 호출 중... (최대 120초 소요)")
+            print(f"🌐 OpenAI API 호출 중... (모델: {self.model}, 최대 120초 소요)")
             response = self.client.chat.completions.create(
-                model="gpt-4o",
+                model=self.model,
                 timeout=120.0,  # 2분 타임아웃 설정
                 messages=[
                     {
@@ -84,7 +92,12 @@ class AIAnalyzer:
             
             print("✅ OpenAI API 응답 받음")
             result_text = response.choices[0].message.content
+            if result_text is None:
+                result_text = ""
+                print("⚠️ 응답이 None입니다! 빈 문자열로 처리합니다.")
             print(f"📄 응답 길이: {len(result_text)} 자")
+            if len(result_text) > 0:
+                print(f"📝 응답 미리보기: {result_text[:200]}...")
             
             # JSON 추출 (코드 블록 제거)
             print("🔍 JSON 추출 중...")
